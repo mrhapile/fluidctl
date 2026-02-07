@@ -15,6 +15,7 @@ type DiagnosticResult struct {
 
 // FailureHint describes a detected issue with severity and remediation suggestions.
 type FailureHint struct {
+	ID         string        `json:"id"`                // Unique identifier for the rule (e.g., DATASET_NOT_BOUND)
 	Severity   SeverityLevel `json:"severity"`          // E.g., CRITICAL, WARNING, INFO
 	Component  string        `json:"component"`         // E.g., "Worker", "PVC"
 	Evidence   Evidence      `json:"evidence"`          // Concrete data supporting the finding

@@ -4,10 +4,7 @@ import (
 	"context"
 
 	"github.com/fluid-cloudnative/fluid-introspector/fluid-introspector/pkg/types"
-
 	// Assuming standard Fluid API import path
-
-	"k8s.io/apimachinery/pkg/types" // k8s types
 )
 
 // discoverDataset fetches the primary Dataset CR and extracts key status information.
