@@ -2,13 +2,35 @@
 
 A production-grade, read-only introspection engine for CNCF Fluid. This library powers `fluidctl` and other diagnostic tools by converting complex Kubernetes runtime states into deterministic, typed diagnostic reports.
 
-## Architecture
+## Installation & Usage
 
-The system operates in two phases:
-1.  **Phase 1: Resource Mapper (`pkg/mapper`)**: Discovers and correlates Fluid Datasets with their underlying Kubernetes resources (StatefulSets, PVCs, Pods, ConfigMaps) into a `ResourceGraph`.
-2.  **Phase 2: Diagnostic Engine (`pkg/diagnose`)**: Analyzes the `ResourceGraph` using a set of static, deterministic rules to identify failures and suggest remediations.
+### Building from Source
 
-## CLI Usage (`fluidctl`)
+To build and install `fluidctl`, use the provided `Makefile`. This ensures that version metadata is correctly injected into the binary.
+
+```bash
+# Build the binary to bin/fluidctl
+make build
+
+# Install to /usr/local/bin/fluidctl
+make install
+```
+
+### Verification
+
+Once installed, verify the CLI version:
+
+```bash
+fluidctl version
+# Output:
+# fluidctl version: v0.1.0
+# git commit: a1b2c3d
+# build date: 2026-02-08T10:00:00Z
+# go version: go1.22.0
+# platform: darwin/arm64
+```
+
+## CLI Modes
 
 `fluidctl` supports two modes of operation:
 
@@ -35,6 +57,12 @@ fluidctl inspect dataset my-dataset -n default
 # Inspect with JSON output for piping to jq
 fluidctl inspect dataset my-dataset -o json | jq .isHealthy
 ```
+
+## Architecture
+
+The system operates in two phases:
+1.  **Phase 1: Resource Mapper (`pkg/mapper`)**: Discovers and correlates Fluid Datasets with their underlying Kubernetes resources (StatefulSets, PVCs, Pods, ConfigMaps) into a `ResourceGraph`.
+2.  **Phase 2: Diagnostic Engine (`pkg/diagnose`)**: Analyzes the `ResourceGraph` using a set of static, deterministic rules to identify failures and suggest remediations.
 
 ## How Diagnostics Work
 
