@@ -1,10 +1,13 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"os"
 
 	"github.com/fluid-cloudnative/fluid-introspector/fluid-introspector/pkg/diagnose"
+	"github.com/fluid-cloudnative/fluid-introspector/fluid-introspector/pkg/k8s"
+	"github.com/fluid-cloudnative/fluid-introspector/fluid-introspector/pkg/mapper"
 	"github.com/fluid-cloudnative/fluid-introspector/fluidctl/pkg/printer"
 	"github.com/fluid-cloudnative/fluid-introspector/fluidctl/pkg/scenarios"
 	"github.com/spf13/cobra"
@@ -32,8 +35,8 @@ var datasetCmd = &cobra.Command{
 		if inspectMock {
 			runMock(name, inspectScenario, inspectOutput)
 		} else {
-			fmt.Println("Real mode k8s client integration not yet wired in Phase 3.")
-			os.Exit(1)
+			// Real Mode Path
+			runReal(name, inspectNamespace, inspectOutput)
 		}
 	},
 }
@@ -72,6 +75,36 @@ func runMock(name, scenarioName, outputFormat string) {
 		printer.PrintJSON(result)
 	} else {
 		fmt.Printf("[MOCK MODE] Scenario: %s\n", s.Description)
+		printer.PrintTree(result)
+	}
+}
+
+func runReal(name, namespace, outputFormat string) {
+	// 1. Initialize Client
+	cli, err := k8s.NewClient()
+	if err != nil {
+		fmt.Printf("Error initializing K8s client: %v\n", err)
+		os.Exit(1)
+	}
+
+	// 2. Initialize Mapper
+	m := mapper.NewK8sMapper(cli)
+
+	// 3. Map Dataset
+	ctx := context.Background()
+	graph, err := m.MapDataset(ctx, name, namespace)
+	if err != nil {
+		fmt.Printf("Error mapping dataset '%s' in namespace '%s': %v\n", name, namespace, err)
+		os.Exit(1)
+	}
+
+	// 4. Diagnose
+	result := diagnose.Diagnose(graph)
+
+	// 5. Print
+	if outputFormat == "json" {
+		printer.PrintJSON(result)
+	} else {
 		printer.PrintTree(result)
 	}
 }
